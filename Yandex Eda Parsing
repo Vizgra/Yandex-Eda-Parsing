@@ -1,0 +1,38 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+from tabulate import tabulate
+
+url_rest='https://eda.yandex/spb?utm_campaign=50744949.%5BEDA%5DDT_BR-goal_RU-SPE-SPB_brand_restype-search_NU&utm_content=&utm_medium=cpc&utm_source=yasearch&utm_term=яндекс%20еда%7Cpid%7C20180322629%7Caid%7C8845135636'
+
+rest_inf = (requests.get(url_rest)).text
+rest_info_soup = BeautifulSoup(rest_inf)
+
+
+rest_data = rest_info_soup.findAll ('div',{'class':'CatalogPagePlaceItem_placeInfo DesktopCatalogPagePlaceItem_placeInfo'})
+rest_data_clean = []
+for element in rest_data:
+    rest_data_clean.append(element.text)
+
+rest_data_clean2=[]
+for element in rest_data_clean:
+    inf_clean = element.replace('₽₽₽', '')
+    inf_clean = inf_clean.replace('Мало оценок', '')
+    inf_range=''
+    inf_rest=''
+    if inf_clean[-1].isdigit(): #Последний элемент в списке- цифра
+        inf_range = inf_clean[-3:]
+    else:
+        inf_range = "Оценок нет"
+    
+    if inf_clean[-1].isdigit():
+        inf_rest = inf_clean[:-3]
+    else:
+        inf_rest = inf_clean
+    a=(inf_range,inf_rest)
+    rest_data_clean2.append(a)
+    
+# print(rest_data_clean2)
+
+Gde_Poestь= tabulate(rest_data_clean2, headers=['Оценка','Ресторан'], tablefmt='grid')
+print(Gde_Poestь)
